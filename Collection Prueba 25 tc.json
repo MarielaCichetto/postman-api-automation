@@ -1,0 +1,1879 @@
+{
+	"info": {
+		"_postman_id": "3292f8bb-5eb8-4c71-bf88-907d591769bf",
+		"name": "GX2-35684 | Restful-Booker (API) | Gestión de Reservas | Actualizar Reserva",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37606565"
+	},
+	"item": [
+		{
+			"name": "PRC: Restful-Booker (API) | Gestión de Reservas",
+			"item": [
+				{
+					"name": "Obtener Token de autorización",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Este script se ejecuta DESPUÉS de recibir la respuesta.\r",
+									"if (pm.response.code === 200) {\r",
+									"    var responseJson = pm.response.json();\r",
+									"    // CONFIRMADO: El campo en la respuesta JSON se llama 'token'\r",
+									"    var authToken = responseJson.token;\r",
+									"    pm.environment.set(\"authToken\", authToken);\r",
+									"    console.log(\"Token guardado en el entorno: \" + authToken);\r",
+									"} else {\r",
+									"    console.log(\"La autenticación no fue exitosa. Código: \" + pm.response.code);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "token=f959fb3a104b549",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"username\": \"admin\", \r\n\"password\": \"password123\" }"
+						},
+						"url": {
+							"raw": "{{dom}}/auth",
+							"host": [
+								"{{dom}}"
+							],
+							"path": [
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de una nueva reserva",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Este script se ejecuta DESPUÉS de recibir la respuesta.\r",
+									"if (pm.response.code === 200) {\r",
+									"    var responseJson = pm.response.json();\r",
+									"    // CONFIRMADO: El campo en la respuesta JSON se llama 'bookingid'\r",
+									"    var bookingId = responseJson.bookingid;\r",
+									"    pm.environment.set(\"bookingId\", bookingId);\r",
+									"    console.log(\"bookingId guardado en el entorno: \" + bookingId);\r",
+									"} else {\r",
+									"    console.log(\"La solicitud POST no fue exitosa. Código: \" + pm.response.code);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"Carolina\",\r\n    \"lastname\": \"Gomez\",\r\n    \"totalprice\": 75000,\r\n    \"depositpaid\": false,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-03-10\",\r\n        \"checkout\": \"2026-03-15\"\r\n    },\r\n    \"additionalneeds\": \"Piscina Climatizada\"\r\n}"
+						},
+						"url": {
+							"raw": "{{dom}}/booking",
+							"host": [
+								"{{dom}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "1. Tener acceso al sistema\n    \n2. Obtener un Token de Autenticación\n    \n3. Tener creada una reserva para poder actualizarla luego"
+		},
+		{
+			"name": "Actualización Completa (Método PUT)",
+			"item": [
+				{
+					"name": "TC VÁLIDOS",
+					"item": [
+						{
+							"name": "GX2-35684 | TC01: Actualizar reserva (PUT) con datos VÁLIDOS y completos.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"El código de estado es 200 OK\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// Define aquí los datos EXACTOS que envías en el BODY de tu solicitud PUT\r",
+											"const datosEsperados = {\r",
+											"    \"firstname\": \"Fernando\",\r",
+											"    \"lastname\": \"Ramirez\",\r",
+											"    \"totalprice\": 120000,\r",
+											"    \"depositpaid\": true,\r",
+											"    \"bookingdates\": {\r",
+											"        \"checkin\": \"2025-11-20\",\r",
+											"        \"checkout\": \"2025-11-25\"\r",
+											"    },\r",
+											"    \"additionalneeds\": \"Cama para bebé\"\r",
+											"};\r",
+											"\r",
+											"// Acceder a la reserva actualizada en la respuesta\r",
+											"const updatedBooking = pm.response.json();\r",
+											"\r",
+											"// Test: Validar que los datos clave en la respuesta coinciden con los enviados\r",
+											"pm.test(\"Los datos principales se actualizaron correctamente\", function () {\r",
+											"    pm.expect(updatedBooking.firstname).to.eql(datosEsperados.firstname);\r",
+											"    pm.expect(updatedBooking.lastname).to.eql(datosEsperados.lastname);\r",
+											"    pm.expect(updatedBooking.totalprice).to.eql(datosEsperados.totalprice);\r",
+											"    pm.expect(updatedBooking.depositpaid).to.eql(datosEsperados.depositpaid);\r",
+											"    pm.expect(updatedBooking.additionalneeds).to.eql(datosEsperados.additionalneeds);\r",
+											"    pm.expect(updatedBooking.bookingdates.checkin).to.eql(datosEsperados.bookingdates.checkin);\r",
+											"    pm.expect(updatedBooking.bookingdates.checkout).to.eql(datosEsperados.bookingdates.checkout);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Fernando\",\r\n    \"lastname\": \"Ramirez\",\r\n    \"totalprice\": 120000,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-11-20\",\r\n        \"checkout\": \"2025-11-25\"\r\n    },\r\n    \"additionalneeds\": \"Cama para bebé\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC02: Actualizar reserva (PUT) con datos VÁLIDOS y additionalneeds como NULL.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"El código de estado es 200 OK\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"const datosEsperados = {\r",
+											"    \"firstname\": \"Miguel\",\r",
+											"    \"lastname\": \"Fernandez\",\r",
+											"    \"totalprice\": 9999,\r",
+											"    \"depositpaid\": true,\r",
+											"    \"bookingdates\": {\r",
+											"        \"checkin\": \"2025-09-01\",\r",
+											"        \"checkout\": \"2025-09-07\"\r",
+											"    },\r",
+											"    \"additionalneeds\": null\r",
+											"};\r",
+											"\r",
+											"// Acceder a la reserva actualizada en la respuesta\r",
+											"const updatedBooking = pm.response.json();\r",
+											"\r",
+											"// Test: Validar que los datos clave en la respuesta coinciden con los enviados\r",
+											"pm.test(\"Los datos principales y additionalneeds (NULL) se actualizaron correctamente\", function () {\r",
+											"    pm.expect(updatedBooking).to.exist; // Check if updatedBooking is defined\r",
+											"    pm.expect(updatedBooking.firstname).to.eql(datosEsperados.firstname);\r",
+											"    pm.expect(updatedBooking.lastname).to.eql(datosEsperados.lastname);\r",
+											"    pm.expect(updatedBooking.totalprice).to.eql(datosEsperados.totalprice);\r",
+											"    pm.expect(updatedBooking.depositpaid).to.eql(datosEsperados.depositpaid);\r",
+											"    pm.expect(updatedBooking.additionalneeds).to.eql(datosEsperados.additionalneeds); // Validación para NULL\r",
+											"\r",
+											"    pm.expect(updatedBooking.bookingdates.checkin).to.eql(datosEsperados.bookingdates.checkin);\r",
+											"    pm.expect(updatedBooking.bookingdates.checkout).to.eql(datosEsperados.bookingdates.checkout);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Miguel\",\r\n    \"lastname\": \"Fernandez\",\r\n    \"totalprice\": 9999,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-09-01\",\r\n        \"checkout\": \"2025-09-07\"\r\n    },\r\n    \"additionalneeds\": null\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC03: Actualizar reserva (PUT) con datos VÁLIDOS y depositpaid como false.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Access the updated booking directly from the response\r",
+											"const updatedBooking = pm.response.json();\r",
+											"\r",
+											"// Test: Verificar código de estado 200 OK\r",
+											"pm.test(\"El código de estado es 200 OK\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// Define aquí los datos EXACTOS que envías en el BODY de tu solicitud PUT para este TC03\r",
+											"const datosEsperados = {\r",
+											"    \"firstname\": \"Laura\",\r",
+											"    \"lastname\": \"Gimenez\",\r",
+											"    \"totalprice\": 15000,\r",
+											"    \"depositpaid\": false, // ¡Aquí la clave! Validamos que sea FALSE\r",
+											"    \"bookingdates\": {\r",
+											"        \"checkin\": \"2025-10-10\",\r",
+											"        \"checkout\": \"2025-10-15\"\r",
+											"    },\r",
+											"    \"additionalneeds\": \"Cena para dos\"\r",
+											"};\r",
+											"\r",
+											"// Test: Validar que los datos clave en la respuesta coinciden con los enviados\r",
+											"pm.test(\"Los datos principales y depositpaid (FALSE) se actualizaron correctamente\", function () {\r",
+											"    pm.expect(updatedBooking.firstname).to.eql(datosEsperados.firstname);\r",
+											"    pm.expect(updatedBooking.lastname).to.eql(datosEsperados.lastname);\r",
+											"    pm.expect(updatedBooking.totalprice).to.eql(datosEsperados.totalprice);\r",
+											"    pm.expect(updatedBooking.depositpaid).to.eql(datosEsperados.depositpaid); // Validación para FALSE\r",
+											"    pm.expect(updatedBooking.additionalneeds).to.eql(datosEsperados.additionalneeds);\r",
+											"\r",
+											"    pm.expect(updatedBooking.bookingdates.checkin).to.eql(datosEsperados.bookingdates.checkin);\r",
+											"    pm.expect(updatedBooking.bookingdates.checkout).to.eql(datosEsperados.bookingdates.checkout);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Laura\",\r\n    \"lastname\": \"Gimenez\",\r\n    \"totalprice\": 15000,\r\n    \"depositpaid\": false,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-10-10\",\r\n        \"checkout\": \"2025-10-15\"\r\n    },\r\n    \"additionalneeds\": \"Cena para dos\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "TC INVÁLIDOS",
+					"item": [
+						{
+							"name": "GX2-35684 | TC04: No poder actualizar reserva (PUT) con ID inexistente.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"La solicitud deberia devolver un error 404 Not Found\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Marisa\",\r\n    \"lastname\": \"Revelo\",\r\n    \"totalprice\": 5000,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-12-20\",\r\n        \"checkout\": \"2025-12-25\"\r\n    },\r\n    \"additionalneeds\": \"Sin necesidades adicionales\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/9999",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"9999"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC05: No poder actualizar reserva (PUT) sin autenticación o con Token INVÁLIDO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response;\r",
+											"const statusCode = response.code;\r",
+											"\r",
+											"// Log para ver el valor de statusCode JUSTO antes del test\r",
+											"console.log(\"Valor de 'statusCode' en el script:\", statusCode);\r",
+											"\r",
+											"pm.test(\"La solicitud devolvió 403 Forbidden como se esperaba\", function () {\r",
+											"    // Un log adicional para asegurarnos del valor en el momento del test\r",
+											"    console.log(\"Dentro del test - Valor de 'statusCode':\", statusCode);\r",
+											"    pm.expect(statusCode).to.eql(403);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"El cuerpo de la respuesta contiene el mensaje 'Forbidden'\", function () {\r",
+											"    pm.expect(response.text()).to.include(\"Forbidden\");\r",
+											"});\r",
+											"\r",
+											"// Log adicional para el cuerpo de la respuesta (por si hay más info)\r",
+											"console.log(\"Cuerpo de la respuesta completo:\", response.text());\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"SinToken\",\r\n    \"lastname\": \"NoPermitido\",\r\n    \"totalprice\": 1234,\r\n    \"depositpaid\": false,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-02\"\r\n    },\r\n    \"additionalneeds\": \"Fallo autenticacion\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC06: No poder actualizar reserva (PUT) con JSON malformado o Content-Type INCORRECTO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Acceso al objeto de respuesta de Postman\r",
+											"const response = pm.response;\r",
+											"const statusCode = response.code;\r",
+											"\r",
+											"// Test 1: Verificar que el código de estado es 400 Bad Request\r",
+											"pm.test(\"La solicitud devolvió 400 Bad Request para JSON malformado\", function () {\r",
+											"    pm.expect(statusCode).to.eql(400);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta contiene el mensaje 'Bad Request'\r",
+											"// La API Restful-Booker suele devolver \"Bad Request\" como texto plano para 400.\r",
+											"pm.test(\"El cuerpo de la respuesta contiene el mensaje 'Bad Request'\", function () {\r",
+											"    pm.expect(response.text()).to.include(\"Bad Request\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"JSON\",\r\n    \"lastname\": \"Malformado\", // <-- Falta la llave de cierre para que sea inválido\r\n    \"totalprice\": 1000,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-11-01\",\r\n        \"checkout\": \"2025-11-05\"\r\n    },\r\n    \"additionalneeds\": \"Error de parseo\"\r\n// Faltaría la } al final para que sea válido JSON."
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC07: No poder actualizar reserva (PUT) con path de API incorrecto.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 404 Not Found\r",
+											"pm.test(\"La solicitud devolvió 404 Not Found por path incorrecto\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(404);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta contiene un mensaje \"Not Found\"\r",
+											"// La API de Restful-Booker suele devolver un cuerpo de texto plano \"Not Found\" para 404.\r",
+											"pm.test(\"El cuerpo de la respuesta contiene el mensaje 'Not Found'\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que NO se devuelve 200 OK\r",
+											"pm.test(\"La solicitud NO devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.not.eql(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Ruta\",\r\n    \"lastname\": \"MalEscrita\",\r\n    \"totalprice\": 111,\r\n    \"depositpaid\": false,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-01-01\",\r\n        \"checkout\": \"2025-01-05\"\r\n    },\r\n    \"additionalneeds\": \"Cama extra\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/bookingg/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"bookingg",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC08: No poder actualizar reserva (PUT) con frist name y last name como NUL.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request (o 500 Internal Server Error)\r",
+											"pm.test(\"La solicitud devolvió 400 Bad Request o 500 Internal Server Error por nombres nulos\", function () {\r",
+											"    const statusCode = pm.response.code;\r",
+											"    pm.expect(statusCode).to.be.oneOf([400, 500]);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta contiene un mensaje de error relevante\r",
+											"pm.test(\"El cuerpo de la respuesta contiene un mensaje de error esperado\", function () {\r",
+											"    const responseText = pm.response.text();\r",
+											"    // Restful-Booker suele devolver \"Bad Request\" o \"Internal Server Error\"\r",
+											"    pm.expect(responseText).to.be.oneOf([\"Bad Request\", \"Internal Server Error\", \"\"]);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": null,\r\n    \"lastname\": null,\r\n    \"totalprice\": 999,\r\n    \"depositpaid\": false,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-08-01\",\r\n        \"checkout\": \"2025-08-05\"\r\n    },\r\n    \"additionalneeds\": \"Cena especial\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC09: No poder actualizar reserva (PUT) con depositpaid como tipo de carácter INCORRECTO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request (COMPORTAMIENTO CORRECTO ESPERADO)\r",
+											"// Si la API devuelve 200 OK, este test FALLARÁ, señalando el BUG.\r",
+											"pm.test(\"La solicitud debe devolver un error 400 Bad Request por depositpaid de tipo incorrecto\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Deposito\",\r\n    \"lastname\": \"Incorrecto\",\r\n    \"totalprice\": 9999,\r\n    \"depositpaid\": \"verdadero\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-04-01\",\r\n        \"checkout\": \"2025-04-05\"\r\n    },\r\n    \"additionalneeds\": \"Tipo de dato erroneo\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC10: No poder actualizar reserva (PUT) con totalprice NEGATIVO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request\r",
+											"pm.test(\"La solicitud deberia devolver un error 400 Bad Request por totalprice negativo\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Precio\",\r\n    \"lastname\": \"Negativo\",\r\n    \"totalprice\": -100, // ¡Valor NEGATIVO!\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-10-01\",\r\n        \"checkout\": \"2025-10-05\"\r\n    },\r\n    \"additionalneeds\": \"Sin validar precio\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC11: No poder actualizar reserva (PUT) con fechas INVÁLIDAS (checkin > checkout o formato incorrecto).",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request (COMPORTAMIENTO CORRECTO ESPERADO)\r",
+											"// Si la API devuelve 200 OK, este test FALLARÁ, señalando el BUG.\r",
+											"pm.test(\"La solicitud dedebria devolver un error 400 Bad Request para fechas ilógicas\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Fechas\",\r\n    \"lastname\": \"LogicaIncorrecta\",\r\n    \"totalprice\": 1000,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-07-31\",\r\n        \"checkout\": \"2025-07-25\"  // ¡Check-out ANTES del check-in!\r\n    },\r\n    \"additionalneeds\": \"Error logico de fechas\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Actualización Parcial (Método PATCH)",
+			"item": [
+				{
+					"name": "TC VÁLIDOS",
+					"item": [
+						{
+							"name": "GX2-35684 | TC12: Actualizar reserva (PATCH) con datos VÁLIDOS para un solo campo.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 200 OK\r",
+											"pm.test(\"La solicitud devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta es un JSON válido\r",
+											"pm.test(\"El cuerpo de la respuesta es un JSON válido\", function () {\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que el campo actualizado se refleja correctamente en la respuesta\r",
+											"// Ajusta 'campoActualizado' y 'valorEsperado' según el body que enviaste.\r",
+											"const campoActualizado = \"firstname\"; // O \"additionalneeds\", \"lastname\", etc.\r",
+											"const valorEsperado = \"SingleFieldPatch\"; // El valor que enviaste para ese campo.\r",
+											"\r",
+											"pm.test(`El campo '${campoActualizado}' se actualizó correctamente a '${valorEsperado}'`, function () {\r",
+											"    const responseBody = pm.response.json();\r",
+											"    pm.expect(responseBody[campoActualizado]).to.eql(valorEsperado);\r",
+											"});\r",
+											"\r",
+											"// Test 4 (Importante para PATCH): Verificar que otros campos NO MODIFICADOS siguen presentes y no alterados\r",
+											"pm.test(\"Otros campos no modificados siguen presentes y no alterados\", function () {\r",
+											"    const responseBody = pm.response.json();\r",
+											"    // Ejemplos de verificación de campos que NO enviaste en el PATCH body\r",
+											"    pm.expect(responseBody.lastname).to.be.a('string'); // Debería seguir siendo un string\r",
+											"    pm.expect(responseBody.totalprice).to.be.a('number'); // Debería seguir siendo un número\r",
+											"    pm.expect(responseBody.bookingdates).to.be.an('object'); // Debería seguir siendo un objeto de fechas\r",
+											"    // Si tienes el valor original de algún campo no modificado, puedes verificarlo así:\r",
+											"    // pm.expect(responseBody.lastname).to.eql(\"ApellidoOriginal\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"SingleFieldPatch\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC13: Actualizar reserva (PATCH) con datos VÁLIDOS para múltiples campos.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 200 OK\r",
+											"pm.test(\"La solicitud devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta es un JSON válido\r",
+											"pm.test(\"El cuerpo de la respuesta es un JSON válido\", function () {\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que los campos actualizados se reflejan correctamente\r",
+											"const responseBody = pm.response.json();\r",
+											"\r",
+											"// Define los datos que ESPERAS VER en la respuesta (los que enviaste en el body)\r",
+											"// Ajusta esto según el JSON que enviaste en el Body.\r",
+											"const datosActualizadosEsperados = {\r",
+											"    \"firstname\": \"MultipleCamposNombre\",\r",
+											"    \"lastname\": \"MultipleCamposApellido\",\r",
+											"    \"totalprice\": 9999,\r",
+											"    \"additionalneeds\": \"Servicios Extra con PATCH\"\r",
+											"};\r",
+											"\r",
+											"pm.test(\"Los campos 'firstname' y 'lastname' se actualizaron correctamente\", function () {\r",
+											"    pm.expect(responseBody.firstname).to.eql(datosActualizadosEsperados.firstname);\r",
+											"    pm.expect(responseBody.lastname).to.eql(datosActualizadosEsperados.lastname);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"El campo 'totalprice' se actualizó correctamente\", function () {\r",
+											"    pm.expect(responseBody.totalprice).to.eql(datosActualizadosEsperados.totalprice);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"El campo 'additionalneeds' se actualizó correctamente\", function () {\r",
+											"    pm.expect(responseBody.additionalneeds).to.eql(datosActualizadosEsperados.additionalneeds);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"MultipleCamposNombre\",\r\n    \"lastname\": \"MultipleCamposApellido\",\r\n    \"totalprice\": 9999,\r\n    \"additionalneeds\": \"Servicios Extra con PATCH\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC14: Actualizar reserva (PATCH) con datos VÁLIDOS para fechas (bookingdates).",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response;\r",
+											"const statusCode = response.code; // Usando .code corregido\r",
+											"\r",
+											"// Test 1: Verificar que el código de estado es 200 OK\r",
+											"pm.test(\"La solicitud devolvió 200 OK\", function () {\r",
+											"    pm.expect(statusCode).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta es un JSON válido\r",
+											"pm.test(\"El cuerpo de la respuesta es un JSON válido\", function () {\r",
+											"    pm.expect(function () {\r",
+											"        response.json();\r",
+											"    }).to.not.throw();\r",
+											"    pm.expect(response.json()).to.be.an('object');\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que las fechas actualizadas se reflejan correctamente\r",
+											"// Ajusta según el ejemplo que usaste en el Body:\r",
+											"const responseBody = response.json();\r",
+											"\r",
+											"// Si modificaste AMBAS fechas (Ejemplo 1):\r",
+											"pm.test(\"Las fechas de checkin y checkout se actualizaron correctamente\", function () {\r",
+											"    pm.expect(responseBody.bookingdates.checkin).to.eql(\"2026-03-10\");\r",
+											"    pm.expect(responseBody.bookingdates.checkout).to.eql(\"2026-03-20\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-03-10\",\r\n        \"checkout\": \"2026-03-20\"\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC15: Actualizar reserva (PATCH) con additionalneeds como NULL.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 200 OK\r",
+											"pm.test(\"La solicitud devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta es un JSON válido\r",
+											"pm.test(\"El cuerpo de la respuesta es un JSON válido\", function () {\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que additionalneeds se actualizó a null/ausente\r",
+											"pm.test(\"El campo 'additionalneeds' se actualizó correctamente a null o está ausente\", function () {\r",
+											"    const responseBody = pm.response.json();\r",
+											"    // Opción 1: Esperar que sea explícitamente null\r",
+											"    pm.expect(responseBody.additionalneeds).to.be.null;\r",
+											"    // Opción 2 (Si la API elimina el campo en lugar de poner null):\r",
+											"    // pm.expect(responseBody).to.not.have.property('additionalneeds');\r",
+											"    // Si no estás seguro, puedes combinarlas:\r",
+											"    // pm.expect(responseBody.additionalneeds === null || !responseBody.hasOwnProperty('additionalneeds')).to.be.true;\r",
+											"});\r",
+											"\r",
+											"// Test 4: Verificar que otros campos no modificados siguen presentes y correctos\r",
+											"pm.test(\"Otros campos (ej. firstname, lastname) siguen presentes y no alterados\", function () {\r",
+											"    const responseBody = pm.response.json();\r",
+											"    pm.expect(responseBody.firstname).to.be.a('string');\r",
+											"    pm.expect(responseBody.lastname).to.be.a('string');\r",
+											"    pm.expect(responseBody.totalprice).to.be.a('number');\r",
+											"    pm.expect(responseBody.depositpaid).to.be.a('boolean');\r",
+											"    pm.expect(responseBody.bookingdates).to.be.an('object');\r",
+											"    // Puedes añadir más aserciones si conoces los valores originales de los campos no modificados\r",
+											"    // pm.expect(responseBody.firstname).to.eql(\"ValorOriginalNombre\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"additionalneeds\": null\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC16: Actualizar reserva (PATCH) con datos VÁLIDOS en formato XML.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Verificar que el código de estado es 200 OK\r",
+											"pm.test(\"Código de estado 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(200);\r",
+											"});\r",
+											"\r",
+											"// Verificar que la respuesta es JSON válida\r",
+											"pm.test(\"Respuesta en formato JSON\", function () {\r",
+											"    pm.response.to.be.withBody;\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"\r",
+											"// Obtener el cuerpo de la respuesta\r",
+											"const body = pm.response.json();\r",
+											"\r",
+											"// Verificar que se actualizó el nombre y apellido correctamente\r",
+											"pm.test(\"Nombre actualizado correctamente\", function () {\r",
+											"    pm.expect(body.firstname).to.eql(\"NombreViaXML\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Apellido actualizado correctamente\", function () {\r",
+											"    pm.expect(body.lastname).to.eql(\"ApellidoViaXML\");\r",
+											"});\r",
+											"\r",
+											"// Verificar que los campos restantes siguen estando y con tipos válidos\r",
+											"pm.test(\"Campos no modificados siguen presentes\", function () {\r",
+											"    pm.expect(body.totalprice).to.be.a('number');\r",
+											"    pm.expect(body.depositpaid).to.be.a('boolean');\r",
+											"    pm.expect(body.bookingdates).to.be.an('object');\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/xml",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "<?xml version=\"1.0\"?>\r\n<booking>\r\n    <firstname>NombreViaXML</firstname>\r\n    <lastname>ApellidoViaXML</lastname>\r\n</booking>",
+									"options": {
+										"raw": {
+											"language": "xml"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "GX2-35684 | TC16: Actualizar reserva (PATCH) con datos VÁLIDOS en formato XML.",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Cookie",
+												"value": "token={{authToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{dom}}/booking/{{bookingId}}",
+											"host": [
+												"{{dom}}"
+											],
+											"path": [
+												"booking",
+												"{{bookingId}}"
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "GX2-35684 | TC17: Actualizar reserva (PATCH) con datos VÁLIDOS en formato URL-encoded.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar el código de estado esperado (400 Bad Request o 415 Unsupported Media Type)\r",
+											"pm.test(\"La solicitud devuelve 400 Bad Request, 415 Unsupported Media Type, O 200 OK (posible bug si no actualiza)\", function () {\r",
+											"    const statusCode = pm.response.code;\r",
+											"    pm.expect(statusCode).to.be.oneOf([400, 415, 200]); // Incluimos 200 por si se repite el bug del TC16\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que si devuelve 200 OK, los datos realmente se hayan actualizado\r",
+											"pm.test(\"Si la respuesta es 200 OK, los campos 'firstname' y 'lastname' deberían reflejar la actualización\", function () {\r",
+											"    if (pm.response.code === 200) {\r",
+											"        pm.response.to.be.json; // Asumimos que la respuesta exitosa es JSON\r",
+											"        const responseBody = pm.response.json();\r",
+											"        const nombreEsperado = \"NombreURL\";\r",
+											"        const apellidoEsperado = \"ApellidoURL\";\r",
+											"\r",
+											"        // ¡Importante! Aquí confirmamos que si es 200 OK, los datos están cambiados\r",
+											"        pm.expect(responseBody.firstname).to.eql(nombreEsperado);\r",
+											"        pm.expect(responseBody.lastname).to.eql(apellidoEsperado);\r",
+											"    } else {\r",
+											"        // Si no es 200 OK, el test pasa porque no se esperaba una actualización.\r",
+											"        // Esto evita que el test falle si la API devuelve correctamente un 4xx.\r",
+											"        pm.expect(true).to.be.true;\r",
+											"    }\r",
+											"});\r",
+											"\r",
+											"// Test 3: Si no es 200 OK, verificar el mensaje de error (ej. \"Bad Request\")\r",
+											"pm.test(\"Si la respuesta no es 200 OK, el cuerpo contiene un mensaje de error esperado\", function () {\r",
+											"    if (pm.response.code !== 200) {\r",
+											"        const responseText = pm.response.text();\r",
+											"        pm.expect(responseText).to.be.oneOf([\"Bad Request\", \"Unsupported Media Type\", \"\"]); // O cualquier mensaje específico que la API devuelva\r",
+											"    } else {\r",
+											"        pm.expect(true).to.be.true; // Si fue 200 OK, este test no aplica\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "firstname",
+											"value": "NombreURL",
+											"type": "text"
+										},
+										{
+											"key": "lastname",
+											"value": "ApellidoURL",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "TC INVÁLIDOS",
+					"item": [
+						{
+							"name": "GX2-35684 | TC18: No poder actualizar reserva (PATCH) con ID inexistente.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test: Verificar que el código de estado es 404 Not Found para un ID inexistente\r",
+											"\r",
+											"pm.test(\"La API debería devolver 404 Not Found para un ID inexistente\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(404);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"ID\",\r\n    \"lastname\": \"Inexistente\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/99999999999",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"99999999999"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC19: No poder actualizar reserva (PATCH) sin autenticación o con token INVÁLIDO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 401 Unauthorized o 403 Forbidden\r",
+											"pm.test(\"La solicitud devolvió 401 Unauthorized o 403 Forbidden sin token\", function () {\r",
+											"    const statusCode = pm.response.code;\r",
+											"    pm.expect(statusCode).to.be.oneOf([401, 403]);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta contiene un mensaje de error\r",
+											"pm.test(\"El cuerpo de la respuesta contiene un mensaje de error (Unauthorized o Forbidden)\", function () {\r",
+											"    const responseText = pm.response.text();\r",
+											"    pm.expect(responseText).to.be.oneOf([\"Unauthorized\", \"Forbidden\"]);\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que NO se devuelve 200 OK\r",
+											"pm.test(\"La solicitud NO devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.not.eql(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Sin\",\r\n    \"lastname\": \"Autenticacion\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC20: No poder actualizar reserva (PATCH) con JSON malformado o Content-Type INCORRECTO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request\r",
+											"pm.test(\"La solicitud devolvió 400 Bad Request por JSON malformado\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta contiene el mensaje \"Bad Request\"\r",
+											"pm.test(\"El cuerpo de la respuesta contiene el mensaje 'Bad Request'\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"Bad Request\");\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que NO se devuelve 200 OK\r",
+											"pm.test(\"La solicitud NO devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.not.eql(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"JSON Malformado\",\r\n    \"lastname\": \"Error Sintaxis\", // <-- Falta una comilla de cierre o una coma donde no va\r\n    \"totalprice\": 500,\r\n    \"depositpaid\": true\r\n    \"bookingdates\": { // <-- Falta coma después de depositpaid\r\n        \"checkin\": \"2025-09-01\",\r\n        \"checkout\": \"2025-09-05\"\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC21: No poder actualizar reserva (PATCH) con path de API incorrecto.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 404 Not Found\r",
+											"pm.test(\"La solicitud devolvió 404 Not Found por path incorrecto\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(404);\r",
+											"});\r",
+											"\r",
+											"// Test 2: Verificar que el cuerpo de la respuesta contiene un mensaje \"Not Found\"\r",
+											"// La API de Restful-Booker suele devolver un cuerpo de texto plano \"Not Found\" para 404.\r",
+											"pm.test(\"El cuerpo de la respuesta contiene el mensaje 'Not Found'\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"Not Found\");\r",
+											"});\r",
+											"\r",
+											"// Test 3: Verificar que NO se devuelve 200 OK\r",
+											"pm.test(\"La solicitud NO devolvió 200 OK\", function () {\r",
+											"    pm.expect(pm.response.code).to.not.eql(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "coo",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Path\",\r\n    \"lastname\": \"Incorrecto\"\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/bookingg/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"bookingg",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC22: No poder actualizar reserva (PATCH) con frist name y last name como NUL.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request (o 500 Internal Server Error)\r",
+											"pm.test(\"La solicitud deberia devolver un error 400 Bad Request o 500 Internal Server Error por nombres nulos\", function () {\r",
+											"    const statusCode = pm.response.code;\r",
+											"    pm.expect(statusCode).to.be.oneOf([400, 500]);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": null,\r\n    \"lastname\": null\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC23: No poder actualizar reserva (PATCH) con depositpaid como tipo de carácter INCORRECTO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request\r",
+											"pm.test(\"La solicitud deberia devolver un error 400 Bad Request por depositpaid de tipo incorrecto\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"Tipo\",\r\n    \"lastname\": \"IncorrectoNum\",\r\n    \"depositpaid\": 123 // ¡Valor de TIPO INCORRECTO (number en vez de boolean)!\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC24: No poder actualizar reserva (PATCH) con totalprice NEGATIVO.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request\r",
+											"pm.test(\"La solicitud deberia devolver un error 400 Bad Request por depositpaid de tipo incorrecto\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{{\r\n    \"firstname\": \"Prueba\",\r\n    \"lastname\": \"PrecioNegativo\",\r\n    \"totalprice\": -100 // ¡Valor NEGATIVO!\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GX2-35684 | TC25: No poder actualizar reserva (PATCH) con fechas INVÁLIDAS (checkin > checkout o formato incorrecto).",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Test 1: Verificar que el código de estado es 400 Bad Request (COMPORTAMIENTO CORRECTO ESPERADO)\r",
+											"// Si la API devuelve 200 OK, este test FALLARÁ, señalando el BUG.\r",
+											"pm.test(\"La solicitud dedebria devolver un error 400 Bad Request para fechas ilógicas\", function () {\r",
+											"    pm.expect(pm.response.code).to.eql(400);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Cookie",
+										"value": "token={{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"FechasPATCH\",\r\n    \"lastname\": \"FormatoIncorrecto\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"31/07/2025\",  // Formato incorrecto\r\n        \"checkout\": \"05-08-2025\"  // Otro formato incorrecto\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{dom}}/booking/{{bookingId}}",
+									"host": [
+										"{{dom}}"
+									],
+									"path": [
+										"booking",
+										"{{bookingId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
